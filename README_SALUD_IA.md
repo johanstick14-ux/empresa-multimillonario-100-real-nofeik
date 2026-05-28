@@ -15,7 +15,7 @@ Aplicación móvil para detección temprana de enfermedades mediante Inteligenci
 
 - Node.js 18+ instalado
 - pnpm (gestor de paquetes)
-- Cuenta de OpenAI con API Key
+- Cuenta de Google con API Key de Gemini (GRATIS)
 
 ## 🔧 Instalación
 
@@ -28,18 +28,18 @@ pnpm install
 
 3. **Configurar variables de entorno:**
 
-Crea un archivo `.env` en la raíz del proyecto con el siguiente contenido:
+Edita el archivo `.env` en la raíz del proyecto con el siguiente contenido:
 
 ```env
-OPENAI_API_KEY=tu_api_key_aqui
+GEMINI_API_KEY=AIzaSyB7a2EV7k9-Ghp7GaD145CUSHsipSsK3JY
 ```
 
-**IMPORTANTE:** Reemplaza `tu_api_key_aqui` con tu API Key real de OpenAI.
+**IMPORTANTE:** Reemplaza con tu API Key real de Gemini si es diferente.
 
-Para obtener tu API Key:
-- Ve a https://platform.openai.com/api-keys
-- Inicia sesión o crea una cuenta
-- Genera una nueva API Key
+Para obtener tu API Key GRATIS:
+- Ve a https://aistudio.google.com/app/apikey
+- Inicia sesión con tu cuenta de Google
+- Haz clic en "Create API Key"
 - Cópiala y pégala en el archivo `.env`
 
 ## 🎯 Uso
@@ -74,7 +74,7 @@ http://localhost:3000
 
 - **Framework:** Next.js 16 (App Router)
 - **UI:** React 19 + TailwindCSS 4
-- **IA:** OpenAI API (GPT-4o-mini)
+- **IA:** Google Gemini 1.5 Flash (GRATIS)
 - **Iconos:** Lucide React
 - **Autenticación:** JWT con Jose
 - **Base de datos:** PostgreSQL (pg)
@@ -93,7 +93,8 @@ Esta aplicación es solo para fines informativos y educativos. No reemplaza el d
 
 ## 📝 Notas de Desarrollo
 
-- El modelo de IA usado es `gpt-4o-mini` (más económico y rápido)
+- El modelo de IA usado es `gemini-1.5-flash` (GRATIS y rápido)
+- **15 solicitudes por minuto** y **1,500 por día** en el tier gratuito
 - Los resultados se almacenan temporalmente en `localStorage`
 - La aplicación está optimizada para dispositivos móviles
 - El historial de consultas requiere implementación de base de datos
@@ -110,9 +111,18 @@ Esta aplicación es solo para fines informativos y educativos. No reemplaza el d
 ## 📞 Soporte
 
 Para problemas o preguntas:
-1. Verifica que tu API Key de OpenAI esté configurada correctamente
-2. Asegúrate de tener créditos en tu cuenta de OpenAI
-3. Revisa la consola del navegador para errores
+1. Verifica que tu API Key de Gemini esté configurada correctamente en `.env`
+2. Asegúrate de que la variable se llame `GEMINI_API_KEY`
+3. Reinicia el servidor después de configurar la API Key
+4. Revisa la consola del navegador para errores
+
+## 💰 Ventajas de Gemini
+
+- ✅ **100% GRATIS** para empezar (no requiere tarjeta de crédito)
+- ✅ 15 solicitudes por minuto
+- ✅ 1,500 solicitudes por día
+- ✅ Modelo rápido y preciso (Gemini 1.5 Flash)
+- ✅ Perfecto para desarrollo y uso personal
 
 ## 📄 Licencia
 

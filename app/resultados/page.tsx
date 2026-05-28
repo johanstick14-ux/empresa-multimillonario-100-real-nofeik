@@ -1,9 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Heart, ArrowLeft, AlertCircle, CheckCircle, Info, TrendingUp } from 'lucide-react';
+import { ArrowLeft, AlertCircle, Info } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface AnalisisResultado {
   enfermedades: string[];
@@ -27,110 +30,100 @@ export default function Resultados() {
 
   if (!resultado) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-cyan-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Cargando resultados...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Cargando resultados...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-cyan-50">
-      <div className="max-w-5xl mx-auto px-4 py-8">
-        <div className="bg-white rounded-3xl shadow-xl p-8">
-          <div className="flex items-center gap-4 mb-8">
+    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
+      <div className="border-b bg-card/50 backdrop-blur-sm">
+        <div className="max-w-4xl mx-auto px-4 py-6">
+          <div className="flex items-center gap-4">
             <Link href="/dashboard">
-              <button className="p-3 hover:bg-gray-100 rounded-xl transition-colors">
-                <ArrowLeft className="w-6 h-6" />
-              </button>
+              <Button variant="ghost" size="icon" className="hover:bg-primary/10">
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
             </Link>
-            <div className="flex items-center gap-3">
-              <div className="bg-gradient-to-br from-purple-500 to-pink-500 p-3 rounded-xl">
-                <TrendingUp className="w-8 h-8 text-white" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold text-gray-800">Resultados del Análisis</h1>
-                <p className="text-gray-600">Análisis completado con IA</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg mb-6 flex items-start gap-3">
-            <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" />
             <div>
-              <h3 className="font-semibold text-green-900 mb-1">Análisis completado</h3>
-              <p className="text-sm text-green-800">
-                El sistema ha procesado tus síntomas y generado recomendaciones.
-              </p>
+              <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">Resultados del Análisis</h1>
+              <p className="text-sm text-muted-foreground">Análisis completado</p>
             </div>
           </div>
+        </div>
+      </div>
 
-          <div className="space-y-6">
-            <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-6 border-2 border-blue-200">
-              <div className="flex items-center gap-2 mb-4">
-                <Info className="w-6 h-6 text-blue-600" />
-                <h2 className="text-xl font-bold text-gray-800">Síntomas Analizados</h2>
-              </div>
-              <p className="text-gray-700 leading-relaxed">{resultado.sintomas_analizados}</p>
-            </div>
+      <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
 
-            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 border-2 border-purple-200">
-              <div className="flex items-center gap-2 mb-4">
-                <AlertCircle className="w-6 h-6 text-purple-600" />
-                <h2 className="text-xl font-bold text-gray-800">Posibles Condiciones</h2>
+        <Card className="border-2 border-primary/20 shadow-lg">
+          <CardHeader className="bg-gradient-to-br from-primary/5 to-transparent">
+            <CardTitle className="flex items-center gap-2">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Info className="h-5 w-5 text-primary" />
               </div>
-              <div className="space-y-2">
-                {resultado.enfermedades.map((enfermedad, index) => (
-                  <div key={index} className="bg-white rounded-lg p-4 flex items-center gap-3">
-                    <div className="bg-purple-100 p-2 rounded-lg">
-                      <Heart className="w-5 h-5 text-purple-600" />
-                    </div>
-                    <span className="text-gray-800 font-medium">{enfermedad}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-4 bg-white rounded-lg p-4">
-                <p className="text-sm text-gray-600">
-                  <strong>Nivel de confianza:</strong> {resultado.probabilidad}
-                </p>
-              </div>
-            </div>
+              Síntomas Analizados
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground leading-relaxed">{resultado.sintomas_analizados}</p>
+          </CardContent>
+        </Card>
 
-            <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border-2 border-green-200">
-              <div className="flex items-center gap-2 mb-4">
-                <CheckCircle className="w-6 h-6 text-green-600" />
-                <h2 className="text-xl font-bold text-gray-800">Análisis Detallado</h2>
+        <Card className="border-2 border-primary/20 shadow-lg">
+          <CardHeader className="bg-gradient-to-br from-primary/5 to-transparent">
+            <CardTitle className="flex items-center gap-2">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <AlertCircle className="h-5 w-5 text-primary" />
               </div>
-              <div className="prose prose-sm max-w-none">
-                <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                  {resultado.analisis_completo}
-                </p>
+              Posibles Condiciones
+            </CardTitle>
+            <CardDescription className="font-medium">Nivel de confianza: {resultado.probabilidad}</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {resultado.enfermedades.map((enfermedad, index) => (
+              <div key={index} className="flex items-center gap-3 p-4 bg-gradient-to-r from-primary/5 to-transparent rounded-lg border border-primary/20 hover:border-primary/40 transition-colors">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground text-sm font-bold">
+                  {index + 1}
+                </div>
+                <span className="text-sm font-medium">{enfermedad}</span>
               </div>
-            </div>
-          </div>
+            ))}
+          </CardContent>
+        </Card>
 
-          <div className="mt-8 bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-lg">
-            <p className="text-sm text-yellow-800">
-              <strong>Importante:</strong> Estos resultados son orientativos y generados por IA. 
-              No constituyen un diagnóstico médico. Si tus síntomas persisten o empeoran, 
-              consulta a un profesional de la salud.
+        <Card className="border-2 border-primary/20 shadow-lg">
+          <CardHeader className="bg-gradient-to-br from-primary/5 to-transparent">
+            <CardTitle>Análisis Detallado</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
+              {resultado.analisis_completo}
             </p>
-          </div>
+          </CardContent>
+        </Card>
 
-          <div className="flex gap-4 mt-8">
-            <Link href="/recomendaciones" className="flex-1">
-              <button className="w-full px-6 py-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl font-semibold hover:from-green-600 hover:to-emerald-600 transition-all">
-                Ver Recomendaciones
-              </button>
-            </Link>
-            <Link href="/sintomas" className="flex-1">
-              <button className="w-full px-6 py-4 bg-gray-200 text-gray-700 rounded-xl font-semibold hover:bg-gray-300 transition-colors">
-                Nuevo Análisis
-              </button>
-            </Link>
-          </div>
+        <Alert>
+          <AlertTitle>Importante</AlertTitle>
+          <AlertDescription className="text-xs">
+            Estos resultados son orientativos y generados por IA. No constituyen un diagnóstico médico. Si tus síntomas persisten o empeoran, consulta a un profesional de la salud.
+          </AlertDescription>
+        </Alert>
+
+        <div className="flex gap-3">
+          <Link href="/recomendaciones" className="flex-1">
+            <Button className="w-full bg-primary hover:bg-primary/90 shadow-lg hover:shadow-xl transition-all">
+              Ver Recomendaciones
+            </Button>
+          </Link>
+          <Link href="/sintomas" className="flex-1">
+            <Button variant="outline" className="w-full hover:bg-secondary">
+              Nuevo Análisis
+            </Button>
+          </Link>
         </div>
       </div>
     </div>

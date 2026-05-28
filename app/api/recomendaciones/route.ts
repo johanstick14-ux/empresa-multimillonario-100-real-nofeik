@@ -1,9 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import OpenAI from 'openai';
-
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,12 +12,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!process.env.OPENAI_API_KEY) {
+    if (!process.env.GEMINI_API_KEY) {
       return NextResponse.json(
-        { error: 'API Key de OpenAI no configurada' },
+        { error: 'API Key de Gemini no configurada' },
         { status: 500 }
       );
     }
+
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
 
     const prompt = `Basándote en el siguiente análisis médico, proporciona 5-7 recomendaciones preventivas y de cuidado personal.
 
@@ -34,28 +33,14 @@ Las recomendaciones deben ser:
 - Específicas para los síntomas mencionados
 - Incluir consejos sobre hidratación, descanso, alimentación, etc.
 
-Responde SOLO con un array JSON de strings, cada uno siendo una recomendación:
+Responde ÚNICAMENTE con un array JSON de strings (sin texto adicional antes o después):
 ["recomendación 1", "recomendación 2", "recomendación 3", ...]
 
 No incluyas numeración en las recomendaciones, solo el texto.`;
 
-    const response = await client.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        {
-          role: 'system',
-          content: 'Eres un asistente médico de IA que proporciona recomendaciones preventivas de salud. Tus recomendaciones son prácticas y basadas en evidencia.',
-        },
-        {
-          role: 'user',
-          content: prompt,
-        },
-      ],
-      temperature: 0.7,
-      max_tokens: 800,
-    });
-
-    const content = response.choices[0]?.message?.content;
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const content = response.text();
     
     if (!content) {
       return NextResponse.json(

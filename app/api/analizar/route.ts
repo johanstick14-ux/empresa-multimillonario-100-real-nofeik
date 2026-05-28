@@ -1,9 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import OpenAI from 'openai';
-
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,12 +12,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!process.env.OPENAI_API_KEY) {
+    if (!process.env.GEMINI_API_KEY) {
       return NextResponse.json(
-        { error: 'API Key de OpenAI no configurada. Por favor configura OPENAI_API_KEY en el archivo .env' },
+        { error: 'API Key de Gemini no configurada. Por favor configura GEMINI_API_KEY en el archivo .env' },
         { status: 500 }
       );
     }
+
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
 
     const prompt = `Eres un asistente médico de IA especializado en análisis de síntomas. Analiza los siguientes síntomas y proporciona:
 
@@ -31,7 +30,7 @@ export async function POST(request: NextRequest) {
 
 Síntomas del paciente: ${sintomas}
 
-Responde en formato JSON con esta estructura:
+Responde ÚNICAMENTE en formato JSON válido con esta estructura exacta (sin texto adicional antes o después):
 {
   "enfermedades": ["condición 1", "condición 2", "condición 3"],
   "probabilidad": "descripción del nivel de confianza",
@@ -40,23 +39,9 @@ Responde en formato JSON con esta estructura:
 
 IMPORTANTE: Siempre recuerda al usuario que esto es solo informativo y debe consultar a un médico profesional.`;
 
-    const response = await client.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        {
-          role: 'system',
-          content: 'Eres un asistente médico de IA que ayuda a analizar síntomas. Siempre recuerdas que tus análisis son informativos y no reemplazan el diagnóstico médico profesional.',
-        },
-        {
-          role: 'user',
-          content: prompt,
-        },
-      ],
-      temperature: 0.7,
-      max_tokens: 1000,
-    });
-
-    const content = response.choices[0]?.message?.content;
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const content = response.text();
     
     if (!content) {
       return NextResponse.json(
@@ -88,9 +73,9 @@ IMPORTANTE: Siempre recuerda al usuario que esto es solo informativo y debe cons
   } catch (error: any) {
     console.error('Error en análisis:', error);
     
-    if (error?.status === 401) {
+    if (error?.message?.includes('API key')) {
       return NextResponse.json(
-        { error: 'API Key de OpenAI inválida. Verifica tu configuración.' },
+        { error: 'API Key de Gemini inválida. Verifica tu configuración.' },
         { status: 401 }
       );
     }
