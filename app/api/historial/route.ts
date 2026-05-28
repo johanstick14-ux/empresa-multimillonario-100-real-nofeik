@@ -12,6 +12,11 @@ export async function GET(request: NextRequest) {
     }
 
     const payload = await verifyJWT(token);
+    
+    if (!payload || !payload.id) {
+      return NextResponse.json({ error: 'Token inválido' }, { status: 401 });
+    }
+    
     const userId = payload.id;
 
     const client = await pool.connect();
@@ -41,6 +46,11 @@ export async function POST(request: NextRequest) {
     }
 
     const payload = await verifyJWT(token);
+    
+    if (!payload || !payload.id) {
+      return NextResponse.json({ error: 'Token inválido' }, { status: 401 });
+    }
+    
     const userId = payload.id;
 
     const { sintomas, enfermedades, probabilidad, analisis_completo, recomendaciones } = await request.json();
