@@ -1,9 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import pool from '@/lib/db';
+import { verifyJWT } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
     const { sintomas } = await request.json();
+    
+    // Obtener usuario del token
+    const token = request.headers.get('authorization')?.replace('Bearer ', '') || '';
+    let userId = null;
+    
+    if (token) {
+      try {
+        const payload = await verifyJWT(token);
+        userId = payload?.id;
+      } catch (e) {
+        // Token inválido, continuar sin guardar en historial
+      }
+    }
 
     if (!sintomas || sintomas.trim().length < 20) {
       return NextResponse.json(
@@ -66,22 +81,44 @@ IMPORTANTE: Siempre recuerda al usuario que esto es solo informativo y debe cons
       };
     }
 
-    return NextResponse.json({
+    const resultado = {
       ...analisisData,
       sintomas_analizados: sintomas,
-    });
+    };
+
+    // Guardar en historial si hay usuario autenticado
+    if (userId) {
+      try {
+        const client = await pool.connect();
+        try {
+          await client.query(
+            'INSERT INTO historial (usuario_id, sintomas, enfermedades, probabilidad, analisis_completo) VALUES ($1, $2, $3, $4, $5)',
+            [userId, sintomas, JSON.stringify(analisisData.enfermedades), analisisData.probabilidad, analisisData.analisis_completo]
+          );
+        } finally {
+          client.release();
+        }
+      } catch (historialError) {
+        console.error('Error al guardar en historial:', historialError);
+        // No fallar si no se puede guardar en historial
+      }
+    }
+
+    return NextResponse.json(resultado);
   } catch (error: any) {
-    console.error('Error en análisis:', error);
+    console.error('Error completo en análisis:', error);
+    console.error('Mensaje de error:', error?.message);
+    console.error('Stack:', error?.stack);
     
-    if (error?.message?.includes('API key')) {
+    if (error?.message?.includes('API key') || error?.message?.includes('API_KEY')) {
       return NextResponse.json(
-        { error: 'API Key de Gemini inválida. Verifica tu configuración.' },
+        { error: 'API Key de Gemini inválida. Verifica tu configuración.', details: error.message },
         { status: 401 }
       );
     }
     
     return NextResponse.json(
-      { error: 'Error al procesar el análisis. Por favor intenta de nuevo.' },
+      { error: 'Error al procesar el análisis. Por favor intenta de nuevo.', details: error.message },
       { status: 500 }
     );
   }

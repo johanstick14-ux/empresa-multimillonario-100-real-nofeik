@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import ProtectedRoute from '@/components/ProtectedRoute';
 
 export default function Sintomas() {
   const router = useRouter();
@@ -20,10 +21,12 @@ export default function Sintomas() {
 
     setLoading(true);
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch('/api/analizar', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ sintomas }),
       });
@@ -44,6 +47,7 @@ export default function Sintomas() {
   };
 
   return (
+    <ProtectedRoute>
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
       <div className="border-b bg-card/50 backdrop-blur-sm">
         <div className="max-w-4xl mx-auto px-4 py-6">
@@ -121,5 +125,6 @@ export default function Sintomas() {
         </form>
       </div>
     </div>
+    </ProtectedRoute>
   );
 }
