@@ -42,6 +42,7 @@ export async function POST(request: NextRequest) {
 1. Una lista de posibles condiciones médicas (máximo 3-4)
 2. El nivel de probabilidad (bajo, medio, alto)
 3. Un análisis detallado de los síntomas
+4. Recomendaciones prácticas para el cuidado
 
 Síntomas del paciente: ${sintomas}
 
@@ -49,10 +50,15 @@ Responde ÚNICAMENTE en formato JSON válido con esta estructura exacta (sin tex
 {
   "enfermedades": ["condición 1", "condición 2", "condición 3"],
   "probabilidad": "descripción del nivel de confianza",
-  "analisis_completo": "análisis detallado de los síntomas y posibles causas"
+  "analisis_completo": "análisis detallado de los síntomas y posibles causas",
+  "recomendaciones": [
+    "Recomendación 1 específica y práctica",
+    "Recomendación 2 específica y práctica",
+    "Recomendación 3 específica y práctica"
+  ]
 }
 
-IMPORTANTE: Siempre recuerda al usuario que esto es solo informativo y debe consultar a un médico profesional.`;
+IMPORTANTE: Las recomendaciones deben ser prácticas, seguras y generales. Siempre recuerda al usuario que esto es solo informativo y debe consultar a un médico profesional.`;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
@@ -92,8 +98,15 @@ IMPORTANTE: Siempre recuerda al usuario que esto es solo informativo y debe cons
         const client = await pool.connect();
         try {
           await client.query(
-            'INSERT INTO historial (usuario_id, sintomas, enfermedades, probabilidad, analisis_completo) VALUES ($1, $2, $3, $4, $5)',
-            [userId, sintomas, JSON.stringify(analisisData.enfermedades), analisisData.probabilidad, analisisData.analisis_completo]
+            'INSERT INTO historial (usuario_id, sintomas, enfermedades, probabilidad, analisis_completo, recomendaciones) VALUES ($1, $2, $3, $4, $5, $6)',
+            [
+              userId, 
+              sintomas, 
+              JSON.stringify(analisisData.enfermedades), 
+              analisisData.probabilidad, 
+              analisisData.analisis_completo,
+              analisisData.recomendaciones ? JSON.stringify(analisisData.recomendaciones) : null
+            ]
           );
         } finally {
           client.release();
