@@ -1,25 +1,46 @@
 'use client';
 
-import { Activity, FileText, ArrowRight, Sparkles, Shield, Clock } from 'lucide-react';
+import { Activity, FileText, ArrowRight, Sparkles, Shield, Clock, LogOut } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import ProtectedRoute from '@/components/ProtectedRoute';
 
 export default function Dashboard() {
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      localStorage.removeItem('token');
+      router.push('/login');
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+    }
+  };
+
   return (
+    <ProtectedRoute>
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
       <div className="border-b bg-card/50 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto px-4 py-8">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2.5 bg-primary/10 rounded-xl">
-              <Sparkles className="h-6 w-6 text-primary" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-primary/10 rounded-xl">
+                <Sparkles className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                  Salud IA
+                </h1>
+                <p className="text-sm text-muted-foreground">Análisis médico con inteligencia artificial</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                Salud IA
-              </h1>
-              <p className="text-sm text-muted-foreground">Análisis médico con inteligencia artificial</p>
-            </div>
+            <Button variant="outline" onClick={handleLogout} className="gap-2">
+              <LogOut className="h-4 w-4" />
+              Cerrar Sesión
+            </Button>
           </div>
         </div>
       </div>
@@ -129,5 +150,6 @@ export default function Dashboard() {
         </Card>
       </div>
     </div>
+    </ProtectedRoute>
   );
 }
