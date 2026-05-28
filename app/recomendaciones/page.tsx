@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import ProtectedRoute from '@/components/ProtectedRoute';
 
 export default function Recomendaciones() {
   const router = useRouter();
@@ -14,39 +15,24 @@ export default function Recomendaciones() {
   const [recomendaciones, setRecomendaciones] = useState<string[]>([]);
 
   useEffect(() => {
-    const fetchRecomendaciones = async () => {
-      const data = localStorage.getItem('analisisResultado');
-      if (!data) {
-        router.push('/sintomas');
-        return;
+    const data = localStorage.getItem('analisisResultado');
+    if (!data) {
+      router.push('/sintomas');
+      return;
+    }
+
+    try {
+      const resultado = JSON.parse(data);
+      if (resultado.recomendaciones && Array.isArray(resultado.recomendaciones)) {
+        setRecomendaciones(resultado.recomendaciones);
+      } else {
+        // Si no hay recomendaciones en el resultado, mostrar mensaje
+        setRecomendaciones([]);
       }
-
-      setLoading(true);
-      try {
-        const resultado = JSON.parse(data);
-        const response = await fetch('/api/recomendaciones', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            enfermedades: resultado.enfermedades,
-            sintomas: resultado.sintomas_analizados,
-          }),
-        });
-
-        const recomendacionesData = await response.json();
-        if (response.ok) {
-          setRecomendaciones(recomendacionesData.recomendaciones);
-        }
-      } catch (error) {
-        console.error('Error al obtener recomendaciones:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchRecomendaciones();
+    } catch (error) {
+      console.error('Error al cargar recomendaciones:', error);
+      router.push('/sintomas');
+    }
   }, [router]);
 
   if (loading) {
@@ -61,6 +47,7 @@ export default function Recomendaciones() {
   }
 
   return (
+    <ProtectedRoute>
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
       <div className="border-b bg-card/50 backdrop-blur-sm">
         <div className="max-w-4xl mx-auto px-4 py-6">
@@ -127,5 +114,6 @@ export default function Recomendaciones() {
         </div>
       </div>
     </div>
+    </ProtectedRoute>
   );
 }
